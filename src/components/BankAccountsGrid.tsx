@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { BANK_ACCOUNTS } from '../data/missionData';
 
-export const BankAccountsGrid: React.FC = () => {
+interface BankAccountsGridProps {
+  highlightCurrency?: 'NGN' | 'USD' | null;
+}
+
+export const BankAccountsGrid: React.FC<BankAccountsGridProps> = ({
+  highlightCurrency = null,
+}) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopy = async (id: string, accountNumber: string) => {
@@ -20,15 +26,31 @@ export const BankAccountsGrid: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {BANK_ACCOUNTS.map((acct) => {
         const isCopied = copiedId === acct.id;
+        const isUsd = acct.id === 'domiciliary';
+        const isHighlighted =
+          (highlightCurrency === 'USD' && isUsd) ||
+          (highlightCurrency === 'NGN' && !isUsd);
+
         return (
           <div
             key={acct.id}
-            className="bg-white border border-stone-200 rounded-xl p-6 flex flex-col justify-between gap-6"
+            className={`rounded-xl p-6 flex flex-col justify-between gap-6 transition-colors duration-200 ${
+              isHighlighted
+                ? 'bg-white border-2 border-forest-800 shadow-sm'
+                : 'bg-white border border-stone-200'
+            }`}
           >
             <div className="space-y-3">
-              <p className="text-xs font-medium text-stone-500 tracking-wide">
-                {acct.type}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-medium text-stone-500 tracking-wide">
+                  {acct.type}
+                </p>
+                {isHighlighted && (
+                  <span className="text-[11px] font-semibold text-forest-900">
+                    Recommended
+                  </span>
+                )}
+              </div>
               <h3 className="font-serif text-xl font-semibold text-forest-950">
                 {acct.bank}
               </h3>
@@ -50,7 +72,7 @@ export const BankAccountsGrid: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleCopy(acct.id, acct.accountNumber)}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 ${
                     isCopied
                       ? 'bg-forest-900 text-white'
                       : 'bg-stone-100 hover:bg-stone-200 text-stone-800'

@@ -298,14 +298,19 @@ export const JournalPage: React.FC<JournalPageProps> = ({
         <div className="space-y-12">
           {/* Tier 1: Lead Story */}
           {leadPost && (
-            <article className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch bg-white border border-stone-200 rounded-2xl overflow-hidden">
-              <div className="lg:col-span-6 aspect-[16/10] lg:aspect-auto min-h-[280px] bg-stone-200">
+            <article className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch bg-white border border-stone-200 rounded-2xl overflow-hidden transition-shadow duration-200 hover:shadow-md">
+              <button
+                type="button"
+                onClick={() => onSelectArticle(leadPost.slug)}
+                className="lg:col-span-6 aspect-[16/10] lg:aspect-auto min-h-[280px] bg-stone-200 overflow-hidden cursor-pointer"
+                aria-label={`Read ${leadPost.title}`}
+              >
                 <SafeImage
                   src={leadPost.coverImage}
                   alt={leadPost.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
-              </div>
+              </button>
               <div className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
@@ -318,7 +323,13 @@ export const JournalPage: React.FC<JournalPageProps> = ({
                     <span>{leadPost.readTime}</span>
                   </div>
                   <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-forest-950 leading-tight">
-                    {leadPost.title}
+                    <button
+                      type="button"
+                      onClick={() => onSelectArticle(leadPost.slug)}
+                      className="text-left hover:text-forest-800 transition-colors cursor-pointer"
+                    >
+                      {leadPost.title}
+                    </button>
                   </h2>
                   <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
                     {leadPost.excerpt}
@@ -357,16 +368,21 @@ export const JournalPage: React.FC<JournalPageProps> = ({
               {secondaryPosts.map((post) => (
                 <article
                   key={post.id}
-                  className="bg-white border border-stone-200 rounded-xl overflow-hidden flex flex-col justify-between"
+                  className="group bg-white border border-stone-200 rounded-xl overflow-hidden flex flex-col justify-between transition-shadow duration-200 hover:shadow-md"
                 >
                   <div>
-                    <div className="aspect-[16/9] bg-stone-200">
+                    <button
+                      type="button"
+                      onClick={() => onSelectArticle(post.slug)}
+                      className="block w-full aspect-[16/9] bg-stone-200 overflow-hidden cursor-pointer"
+                      aria-label={`Read ${post.title}`}
+                    >
                       <SafeImage
                         src={post.coverImage}
                         alt={post.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
-                    </div>
+                    </button>
                     <div className="p-6 space-y-3">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
                         <span className="font-semibold text-harvest-600">{post.category}</span>
@@ -376,7 +392,13 @@ export const JournalPage: React.FC<JournalPageProps> = ({
                         <span>{post.readTime}</span>
                       </div>
                       <h3 className="font-serif text-xl sm:text-2xl font-semibold text-forest-950 leading-snug">
-                        {post.title}
+                        <button
+                          type="button"
+                          onClick={() => onSelectArticle(post.slug)}
+                          className="text-left hover:text-forest-800 transition-colors cursor-pointer"
+                        >
+                          {post.title}
+                        </button>
                       </h3>
                       <p className="text-sm text-stone-600 leading-relaxed">{post.excerpt}</p>
                     </div>
@@ -424,14 +446,20 @@ export const JournalPage: React.FC<JournalPageProps> = ({
                       <span aria-hidden="true">·</span> {post.readTime}
                     </p>
                     <h3 className="font-serif text-xl font-semibold text-forest-950">
-                      {post.title}
+                      <button
+                        type="button"
+                        onClick={() => onSelectArticle(post.slug)}
+                        className="text-left hover:text-forest-800 transition-colors cursor-pointer"
+                      >
+                        {post.title}
+                      </button>
                     </h3>
                     <p className="text-sm text-stone-600 leading-relaxed">{post.excerpt}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => onSelectArticle(post.slug)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-forest-950 bg-limestone hover:bg-stone-200/80 rounded-lg whitespace-nowrap shrink-0 self-start sm:self-center cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-forest-950 bg-limestone hover:bg-stone-200/80 rounded-lg whitespace-nowrap shrink-0 self-start sm:self-center cursor-pointer"
                   >
                     <span>Read Article</span>
                     <ArrowRight className="w-3.5 h-3.5" />

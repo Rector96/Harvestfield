@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, CheckCircle2, ChevronRight } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ChevronRight, Expand } from 'lucide-react';
 import {
   FOUNDER_PROFILE,
   GALLERY_PHOTOS,
@@ -14,11 +14,13 @@ import { BankAccountsGrid } from '../components/BankAccountsGrid';
 interface HomePageProps {
   onNavigate: (page: PageId) => void;
   onSelectArticle: (slug: string) => void;
+  onOpenPhoto: (photoId: string) => void;
 }
 
 const HERO_SPOTS = [
   {
     id: 'cameroon',
+    photoId: 'g1',
     label: 'Cameroon',
     image: '/assets/field/founder-linde-massa.jpg',
     location: 'Linde-Massa, Northern Cameroon',
@@ -26,6 +28,7 @@ const HERO_SPOTS = [
   },
   {
     id: 'tchad',
+    photoId: 'g3',
     label: 'Tchad Republic',
     image: '/assets/field/tchad-republic-mission.jpg',
     location: 'Tchad Republic Missions',
@@ -33,6 +36,7 @@ const HERO_SPOTS = [
   },
   {
     id: 'cote-divoire',
+    photoId: 'g2',
     label: "Côte d'Ivoire",
     image: '/assets/field/cote-divoire-conference.jpg',
     location: "Les Porteurs de Gloire · Côte d'Ivoire",
@@ -40,6 +44,7 @@ const HERO_SPOTS = [
   },
   {
     id: 'schools',
+    photoId: 'g4',
     label: 'School Outreaches',
     image: '/assets/field/school-prayer-outreach.jpg',
     location: 'Omoku & Rivers State, Nigeria',
@@ -47,7 +52,11 @@ const HERO_SPOTS = [
   },
 ];
 
-export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle }) => {
+export const HomePage: React.FC<HomePageProps> = ({
+  onNavigate,
+  onSelectArticle,
+  onOpenPhoto,
+}) => {
   const [heroIndex, setHeroIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [expandedMandate, setExpandedMandate] = useState<string>(MANDATES[0].id);
@@ -56,7 +65,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
   const [prayerName, setPrayerName] = useState('');
   const [prayerContact, setPrayerContact] = useState('');
   const [prayerMessage, setPrayerMessage] = useState('');
-  const [prayerType, setPrayerType] = useState<'Salvation Decision' | 'Prayer Request' | 'Mission Inquiry'>('Salvation Decision');
+  const [prayerType, setPrayerType] = useState<
+    'Salvation Decision' | 'Prayer Request' | 'Mission Inquiry'
+  >('Salvation Decision');
   const [prayerSent, setPrayerSent] = useState(false);
 
   const activeSpot = HERO_SPOTS[heroIndex];
@@ -83,8 +94,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
   return (
     <div>
       {/* 1. Split Editorial Hero */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 lg:pt-16 lg:pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 lg:pt-14 lg:pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
           {/* Left Typography Column */}
           <div className="lg:col-span-7 flex flex-col justify-between space-y-8">
             <div className="space-y-6">
@@ -102,21 +113,29 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                 Academy—led by {FOUNDER_PROFILE.name}.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-wrap items-center gap-3.5 pt-2">
                 <button
                   type="button"
-                  onClick={() => onNavigate('mission')}
+                  onClick={() => onNavigate('partner')}
                   className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-forest-900 hover:bg-forest-800 rounded-lg transition-colors duration-150 whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-forest-800"
                 >
-                  <span>Explore Our Mission</span>
+                  <span>Donate &amp; Partner</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => onNavigate('leadership')}
+                  onClick={() => onNavigate('mission')}
                   className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-forest-950 bg-limestone hover:bg-stone-200/80 border border-stone-300/70 rounded-lg transition-colors duration-150 whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800"
                 >
+                  <span>Explore Our Mission</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('leadership')}
+                  className="inline-flex items-center gap-1.5 px-2 py-3 text-sm font-semibold text-forest-900 hover:text-harvest-600 transition-colors whitespace-nowrap cursor-pointer"
+                >
                   <span>Meet the Founder</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -147,16 +166,22 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
 
           {/* Right Framed Visual Showcase */}
           <div className="lg:col-span-5 flex flex-col">
-            <div className="relative flex-1 min-h-[340px] lg:min-h-full rounded-2xl overflow-hidden border border-stone-200 bg-stone-200">
+            <button
+              type="button"
+              onClick={() => onOpenPhoto(activeSpot.photoId)}
+              className="group relative flex-1 min-h-[340px] lg:min-h-full rounded-2xl overflow-hidden border border-stone-200 bg-stone-200 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800"
+              aria-label={`Open ${activeSpot.location} photograph in gallery`}
+            >
               <SafeImage
                 src={activeSpot.image}
                 alt={activeSpot.caption}
-                className="w-full h-full lg:h-full object-cover transition-opacity duration-200"
+                className="w-full h-full lg:h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 fallbackTitle={activeSpot.location}
               />
-              <div
-                className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/85 via-black/45 to-transparent text-white"
-              >
+              <div className="absolute top-4 right-4 w-9 h-9 rounded-lg bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <Expand className="w-4 h-4" />
+              </div>
+              <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/85 via-black/45 to-transparent text-white">
                 <p className="text-xs font-medium text-harvest-400 mb-1">
                   {activeSpot.location}
                 </p>
@@ -164,7 +189,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                   {activeSpot.caption}
                 </p>
               </div>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -209,7 +234,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                 What We Do
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-forest-950">
-                Eight expressions of one Great Commission mandate.
+                Expressions of one Great Commission mandate.
               </h2>
             </div>
 
@@ -244,17 +269,22 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
               return (
                 <article
                   key={item.id}
-                  className="bg-white border border-stone-200 rounded-xl overflow-hidden flex flex-col justify-between"
+                  className="group bg-white border border-stone-200 rounded-xl overflow-hidden flex flex-col justify-between transition-shadow duration-200 hover:shadow-md"
                 >
                   <div>
-                    <div className="aspect-[16/10] w-full bg-stone-200 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedMandate(isExpanded ? '' : item.id)}
+                      className="block w-full aspect-[16/10] bg-stone-200 overflow-hidden cursor-pointer focus-visible:outline-none"
+                      aria-label={`Toggle details for ${item.title}`}
+                    >
                       <SafeImage
                         src={item.image}
                         alt={item.imageAlt}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                         fallbackTitle={item.title}
                       />
-                    </div>
+                    </button>
                     <div className="p-6 space-y-3">
                       <div className="flex items-center gap-2 text-xs text-stone-500">
                         <span className="font-mono font-semibold text-harvest-600 tabular-nums">
@@ -270,13 +300,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                         {isExpanded ? item.description : item.summary}
                       </p>
                       {isExpanded && (
-                        <ul className="pt-2 space-y-1.5 text-xs text-stone-700 border-t border-stone-100">
-                          {item.highlights.map((hl) => (
-                            <li key={hl} className="leading-relaxed">
-                              • {hl}
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="pt-3 space-y-3 border-t border-stone-100">
+                          <ul className="space-y-1.5 text-xs text-stone-700">
+                            {item.highlights.map((hl) => (
+                              <li key={hl} className="leading-relaxed">
+                                • {hl}
+                              </li>
+                            ))}
+                          </ul>
+                          <button
+                            type="button"
+                            onClick={() => onNavigate('partner')}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-harvest-600 hover:text-forest-900 transition-colors cursor-pointer"
+                          >
+                            <span>Support This Ministry Track</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -284,7 +324,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                     <button
                       type="button"
                       onClick={() => setExpandedMandate(isExpanded ? '' : item.id)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-forest-900 hover:text-harvest-600 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-forest-900 hover:text-harvest-600 transition-colors cursor-pointer py-1"
                     >
                       <span>{isExpanded ? 'Show Less' : 'Read Program Details'}</span>
                       <ChevronRight
@@ -322,26 +362,31 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {previewGallery.map((photo) => (
             <button
               key={photo.id}
               type="button"
-              onClick={() => onNavigate('gallery')}
-              className="group text-left bg-white border border-stone-200 rounded-xl overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800"
+              onClick={() => onOpenPhoto(photo.id)}
+              className="group text-left bg-white border border-stone-200 rounded-xl overflow-hidden transition-shadow duration-200 hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800"
             >
-              <div className="aspect-[4/3] w-full bg-stone-200 overflow-hidden">
+              <div className="relative aspect-[4/3] w-full bg-stone-200 overflow-hidden">
                 <SafeImage
                   src={photo.src}
                   alt={photo.title}
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3">
+                  <span className="text-xs font-medium text-white bg-black/60 px-2.5 py-1 rounded-md">
+                    View Photo
+                  </span>
+                </div>
               </div>
               <div className="p-4 space-y-1">
                 <p className="text-xs text-stone-500">
                   {photo.region} <span aria-hidden="true">·</span> {photo.program}
                 </p>
-                <p className="font-serif text-base font-semibold text-forest-950 leading-snug">
+                <p className="font-serif text-base font-semibold text-forest-950 group-hover:text-forest-800 transition-colors leading-snug">
                   {photo.title}
                 </p>
               </div>
@@ -374,14 +419,19 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Lead Story */}
-            <article className="lg:col-span-7 bg-[#faf8f4] border border-stone-200 rounded-xl overflow-hidden">
-              <div className="aspect-[16/9] bg-stone-200 overflow-hidden">
+            <article className="group lg:col-span-7 bg-[#faf8f4] border border-stone-200 rounded-xl overflow-hidden transition-shadow duration-200 hover:shadow-md">
+              <button
+                type="button"
+                onClick={() => onSelectArticle(featuredPost.slug)}
+                className="block w-full aspect-[16/9] bg-stone-200 overflow-hidden cursor-pointer"
+                aria-label={`Read ${featuredPost.title}`}
+              >
                 <SafeImage
                   src={featuredPost.coverImage}
                   alt={featuredPost.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
-              </div>
+              </button>
               <div className="p-6 sm:p-8 space-y-4">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
                   <span>{featuredPost.category}</span>
@@ -391,17 +441,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                   <span>{featuredPost.readTime}</span>
                 </div>
                 <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-forest-950 leading-tight">
-                  {featuredPost.title}
+                  <button
+                    type="button"
+                    onClick={() => onSelectArticle(featuredPost.slug)}
+                    className="text-left hover:text-forest-800 transition-colors cursor-pointer"
+                  >
+                    {featuredPost.title}
+                  </button>
                 </h3>
                 <p className="text-sm sm:text-base text-stone-700 leading-relaxed">
                   {featuredPost.excerpt}
                 </p>
                 <button
                   type="button"
-                  onClick={() => {
-                    onSelectArticle(featuredPost.slug);
-                    onNavigate('journal');
-                  }}
+                  onClick={() => onSelectArticle(featuredPost.slug)}
                   className="inline-flex items-center gap-2 text-sm font-semibold text-forest-900 hover:text-harvest-600 transition-colors cursor-pointer"
                 >
                   <span>Read Full Dispatch</span>
@@ -415,7 +468,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
               {secondaryPosts.map((post) => (
                 <article
                   key={post.id}
-                  className="bg-[#faf8f4] border border-stone-200 rounded-xl p-6 space-y-3"
+                  className="bg-[#faf8f4] border border-stone-200 rounded-xl p-6 space-y-3 transition-shadow duration-200 hover:shadow-sm"
                 >
                   <div className="flex items-center gap-2 text-xs text-stone-500">
                     <span>{post.category}</span>
@@ -425,17 +478,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                     <span>{post.readTime}</span>
                   </div>
                   <h3 className="font-serif text-xl font-semibold text-forest-950 leading-snug">
-                    {post.title}
+                    <button
+                      type="button"
+                      onClick={() => onSelectArticle(post.slug)}
+                      className="text-left hover:text-forest-800 transition-colors cursor-pointer"
+                    >
+                      {post.title}
+                    </button>
                   </h3>
                   <p className="text-sm text-stone-600 leading-relaxed line-clamp-3">
                     {post.excerpt}
                   </p>
                   <button
                     type="button"
-                    onClick={() => {
-                      onSelectArticle(post.slug);
-                      onNavigate('journal');
-                    }}
+                    onClick={() => onSelectArticle(post.slug)}
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-forest-900 hover:text-harvest-600 transition-colors cursor-pointer"
                   >
                     <span>Open Article</span>
@@ -501,7 +557,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                         key={type}
                         type="button"
                         onClick={() => setPrayerType(type)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                        className={`px-3 py-2 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                           prayerType === type
                             ? 'bg-forest-900 text-white'
                             : 'bg-stone-200/70 text-stone-700 hover:bg-stone-200'
@@ -514,7 +570,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                 </div>
 
                 <div>
-                  <label htmlFor="home-prayer-name" className="block text-xs font-semibold text-stone-700 mb-1.5">
+                  <label
+                    htmlFor="home-prayer-name"
+                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                  >
                     Full Name
                   </label>
                   <input
@@ -529,7 +588,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                 </div>
 
                 <div>
-                  <label htmlFor="home-prayer-contact" className="block text-xs font-semibold text-stone-700 mb-1.5">
+                  <label
+                    htmlFor="home-prayer-contact"
+                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                  >
                     Phone or Email (Optional)
                   </label>
                   <input
@@ -543,7 +605,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
                 </div>
 
                 <div>
-                  <label htmlFor="home-prayer-msg" className="block text-xs font-semibold text-stone-700 mb-1.5">
+                  <label
+                    htmlFor="home-prayer-msg"
+                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                  >
                     Prayer Request or Decision Note
                   </label>
                   <textarea
@@ -571,17 +636,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectArticle 
 
       {/* 7. Stewardship & Giving Channels */}
       <section className="py-16 lg:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mb-10 space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-harvest-600">
-            Support the Harvest
-          </p>
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-forest-950">
-            Official Mission Banking Channels
-          </h2>
-          <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
-            Fulfill your mission mandate for the nations through going, prayer, or sending regular
-            financial support to rural and foreign outreach fields.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
+          <div className="max-w-2xl space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-harvest-600">
+              Support the Harvest
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-forest-950">
+              Official Mission Banking Channels
+            </h2>
+            <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+              Fulfill your mission mandate for the nations through going, prayer, or sending regular
+              financial support to rural and foreign outreach fields.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate('partner')}
+            className="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold text-white bg-forest-900 hover:bg-forest-800 rounded-lg transition-colors whitespace-nowrap self-start sm:self-auto cursor-pointer"
+          >
+            <span>Open Giving &amp; Pledge Desk</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
 
         <BankAccountsGrid />

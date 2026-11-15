@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
 import { GALLERY_PHOTOS, GalleryPhoto } from '../data/missionData';
 import { SafeImage } from '../components/SafeImage';
+
+interface GalleryPageProps {
+  initialPhotoId?: string | null;
+  onClearInitialPhoto?: () => void;
+}
 
 const REGIONS: ('All' | GalleryPhoto['region'])[] = [
   'All',
@@ -12,9 +17,25 @@ const REGIONS: ('All' | GalleryPhoto['region'])[] = [
   'Official Flyers',
 ];
 
-export const GalleryPage: React.FC = () => {
+export const GalleryPage: React.FC<GalleryPageProps> = ({
+  initialPhotoId = null,
+  onClearInitialPhoto,
+}) => {
   const [selectedRegion, setSelectedRegion] = useState<'All' | GalleryPhoto['region']>('All');
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(() => {
+    if (!initialPhotoId) return null;
+    const idx = GALLERY_PHOTOS.findIndex((p) => p.id === initialPhotoId);
+    return idx >= 0 ? idx : null;
+  });
+
+  useEffect(() => {
+    if (!initialPhotoId) return;
+    setSelectedRegion('All');
+    const idx = GALLERY_PHOTOS.findIndex((p) => p.id === initialPhotoId);
+    if (idx >= 0) {
+      setLightboxIndex(idx);
+    }
+  }, [initialPhotoId]);
 
   const filteredPhotos =
     selectedRegion === 'All'
@@ -24,7 +45,10 @@ export const GalleryPage: React.FC = () => {
   useEffect(() => {
     if (lightboxIndex === null) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'Escape') {
+        setLightboxIndex(null);
+        onClearInitialPhoto?.();
+      }
       if (e.key === 'ArrowRight') {
         setLightboxIndex((prev) =>
           prev === null ? null : (prev + 1) % filteredPhotos.length
@@ -38,7 +62,12 @@ export const GalleryPage: React.FC = () => {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [lightboxIndex, filteredPhotos.length]);
+  }, [lightboxIndex, filteredPhotos.length, onClearInitialPhoto]);
+
+  const closeLightbox = () => {
+    setLightboxIndex(null);
+    onClearInitialPhoto?.();
+  };
 
   const activePhoto = lightboxIndex !== null ? filteredPhotos[lightboxIndex] : null;
 
@@ -72,7 +101,7 @@ export const GalleryPage: React.FC = () => {
               aria-selected={selectedRegion === region}
               onClick={() => {
                 setSelectedRegion(region);
-                setLightboxIndex(null);
+                closeLightbox();
               }}
               className={`px-3.5 py-2 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                 selectedRegion === region
@@ -95,12 +124,12 @@ export const GalleryPage: React.FC = () => {
               key={photo.id}
               type="button"
               onClick={() => setLightboxIndex(idx)}
-              className={`group text-left bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 ${
+              className={`group text-left bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col transition-shadow duration-200 hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 ${
                 isWide ? 'sm:col-span-2' : ''
               }`}
             >
               <div
-                className={`w-full bg-stone-200 overflow-hidden ${
+                className={`relative w-full bg-stone-200 overflow-hidden ${
                   photo.region === 'Official Flyers'
                     ? 'aspect-[3/4]'
                     : isWide
@@ -111,14 +140,22 @@ export const GalleryPage: React.FC = () => {
                 <SafeImage
                   src={photo.src}
                   alt={photo.title}
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-4">
+                  <span className="text-xs font-medium text-white">
+                    {photo.location}
+                  </span>
+                  <span className="w-8 h-8 rounded-lg bg-black/60 text-white inline-flex items-center justify-center">
+                    <Expand className="w-4 h-4" />
+                  </span>
+                </div>
               </div>
               <div className="p-5 space-y-1.5">
                 <p className="text-xs text-stone-500">
                   {photo.location} <span aria-hidden="true">·</span> {photo.program}
                 </p>
-                <h2 className="font-serif text-lg font-semibold text-forest-950 leading-snug">
+                <h2 className="font-serif text-lg font-semibold text-forest-950 group-hover:text-forest-800 transition-colors leading-snug">
                   {photo.title}
                 </h2>
                 <p className="text-xs text-stone-600 leading-relaxed line-clamp-2">
@@ -137,7 +174,7 @@ export const GalleryPage: React.FC = () => {
           role="dialog"
           aria-modal="true"
           aria-label={activePhoto.title}
-          onClick={() => setLightboxIndex(null)}
+          onClick={closeLightbox}
         >
           <div
             className="flex items-center justify-between gap-4 max-w-6xl w-full mx-auto"
@@ -154,7 +191,7 @@ export const GalleryPage: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => setLightboxIndex(null)}
+              onClick={closeLightbox}
               className="w-11 h-11 inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 text-white shrink-0 cursor-pointer"
               aria-label="Close lightbox"
             >
@@ -163,7 +200,7 @@ export const GalleryPage: React.FC = () => {
           </div>
 
           <div
-            className="flex-1 flex items-center justify-center gap-4 my-4 max-w-6xl w-full mx-auto min-h-0"
+            className="flex-1 flex items-center justify-center gap-2 sm:gap-4 my-4 max-w-6xl w-full mx-auto min-h-0"
             onClick={(e) => e.stopPropagation()}
           >
             <button

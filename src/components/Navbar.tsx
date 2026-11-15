@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { PageId } from '../data/missionData';
+import { MissionMark } from './MissionMark';
 
 interface NavbarProps {
   currentPage: PageId;
@@ -9,7 +10,7 @@ interface NavbarProps {
 
 const NAV_ITEMS: { id: PageId; label: string }[] = [
   { id: 'home', label: 'Home' },
-  { id: 'mission', label: 'Our Mission' },
+  { id: 'mission', label: 'Mission' },
   { id: 'leadership', label: 'Leadership' },
   { id: 'gallery', label: 'Gallery' },
   { id: 'journal', label: 'Journal' },
@@ -24,19 +25,23 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#faf8f4]/95 backdrop-blur-sm border-b border-stone-200/90">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
-        {/* Zone 1: Single text element wordmark */}
+    <header className="sticky top-0 z-40 bg-[#faf8f4]/95 backdrop-blur-md border-b border-stone-200/90">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between gap-4 md:gap-8">
+        {/* Zone 1: Single-line Brand Wordmark */}
         <button
           type="button"
           onClick={() => handleNav('home')}
-          className="font-serif text-lg sm:text-xl font-semibold tracking-tight text-forest-950 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 rounded-sm cursor-pointer"
+          className="md:justify-self-start inline-flex items-center gap-2.5 font-serif text-lg sm:text-xl font-semibold tracking-tight text-forest-950 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 rounded-sm cursor-pointer"
         >
-          Harvest Field
+          <MissionMark className="w-7 h-7 text-forest-900 shrink-0" />
+          <span>Harvest Field</span>
         </button>
 
-        {/* Zone 2: 5 concise single-line text nav links */}
-        <nav className="hidden md:flex items-center gap-7" aria-label="Primary navigation">
+        {/* Zone 2: Centered 5 single-line text navigation links */}
+        <nav
+          className="hidden md:flex md:justify-self-center items-center gap-7 lg:gap-8"
+          aria-label="Primary navigation"
+        >
           {NAV_ITEMS.map((item) => {
             const isActive = currentPage === item.id;
             return (
@@ -44,32 +49,36 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
                 key={item.id}
                 type="button"
                 onClick={() => handleNav(item.id)}
-                className={`relative py-1 text-sm font-medium whitespace-nowrap shrink-0 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 rounded-sm ${
+                className={`relative py-2 text-sm font-medium whitespace-nowrap shrink-0 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 rounded-sm ${
                   isActive
-                    ? 'text-forest-950'
+                    ? 'text-forest-950 font-semibold'
                     : 'text-stone-600 hover:text-forest-900'
                 }`}
               >
                 {item.label}
-                {isActive && (
-                  <span
-                    className="absolute left-0 right-0 -bottom-0.5 h-0.5 bg-harvest-500"
-                    aria-hidden="true"
-                  />
-                )}
+                <span
+                  className={`absolute left-0 right-0 bottom-0 h-0.5 bg-harvest-500 transition-transform duration-200 origin-left ${
+                    isActive ? 'scale-x-100' : 'scale-x-0'
+                  }`}
+                  aria-hidden="true"
+                />
               </button>
             );
           })}
         </nav>
 
-        {/* Zone 3: 1 primary CTA + mobile drawer trigger */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Zone 3: 1 primary Donate CTA + mobile drawer toggle */}
+        <div className="md:justify-self-end flex items-center gap-2.5 shrink-0">
           <button
             type="button"
             onClick={() => handleNav('partner')}
-            className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-forest-900 hover:bg-forest-800 rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-forest-800"
+            className={`px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-forest-800 ${
+              currentPage === 'partner'
+                ? 'bg-harvest-600 text-white'
+                : 'bg-forest-900 hover:bg-forest-800 text-white'
+            }`}
           >
-            Partner &amp; Give
+            Donate &amp; Partner
           </button>
 
           <button
@@ -86,7 +95,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
 
       {/* Mobile Navigation Drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-stone-200 bg-[#faf8f4] px-4 py-4 space-y-1">
+        <nav
+          aria-label="Mobile navigation"
+          className="md:hidden border-t border-stone-200 bg-[#faf8f4] px-4 py-4 space-y-1.5"
+        >
           {NAV_ITEMS.map((item) => {
             const isActive = currentPage === item.id;
             return (
@@ -104,7 +116,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
               </button>
             );
           })}
-        </div>
+          <div className="pt-2 border-t border-stone-200">
+            <button
+              type="button"
+              onClick={() => handleNav('partner')}
+              className="w-full text-center px-4 py-3 rounded-lg text-base font-semibold bg-harvest-600 hover:bg-harvest-500 text-white transition-colors cursor-pointer"
+            >
+              Donate &amp; Partner
+            </button>
+          </div>
+        </nav>
       )}
     </header>
   );

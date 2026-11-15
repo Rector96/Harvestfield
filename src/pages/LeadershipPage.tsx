@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, CheckCircle2, Copy, Mail, Phone } from 'lucide-react';
+import { ArrowRight, Check, CheckCircle2, Copy, Mail, Phone } from 'lucide-react';
 import { FOUNDER_PROFILE, MISSION_INFO, PageId } from '../data/missionData';
 import { SafeImage } from '../components/SafeImage';
 
@@ -42,11 +42,11 @@ export const LeadershipPage: React.FC<LeadershipPageProps> = ({ onNavigate }) =>
       {/* Executive Portrait & Identity Split */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
         <div className="lg:col-span-5 flex flex-col">
-          <div className="flex-1 min-h-[380px] bg-stone-200 rounded-2xl overflow-hidden border border-stone-200">
+          <div className="group flex-1 min-h-[380px] bg-stone-200 rounded-2xl overflow-hidden border border-stone-200">
             <SafeImage
               src={FOUNDER_PROFILE.portrait}
               alt="Evang. David Abrebor, President and Founder of Harvest Field Gospel Mission Int'l"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
               fallbackTitle="Evang. David Abrebor"
             />
           </div>
@@ -69,6 +69,23 @@ export const LeadershipPage: React.FC<LeadershipPageProps> = ({ onNavigate }) =>
             <p className="text-base text-stone-700 leading-relaxed max-w-2xl">
               {FOUNDER_PROFILE.summary}
             </p>
+            <div className="pt-1 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => onNavigate('partner')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-forest-900 hover:bg-forest-800 rounded-lg transition-colors cursor-pointer"
+              >
+                <span>Support Our Foreign Missions</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate('gallery')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-forest-950 bg-limestone hover:bg-stone-200/80 border border-stone-300/70 rounded-lg transition-colors cursor-pointer"
+              >
+                <span>See Field Photographs</span>
+              </button>
+            </div>
           </div>
 
           {/* Direct Contact Directory */}
@@ -91,7 +108,7 @@ export const LeadershipPage: React.FC<LeadershipPageProps> = ({ onNavigate }) =>
                     <button
                       type="button"
                       onClick={() => handleCopy(phone)}
-                      className="text-xs text-stone-500 hover:text-forest-900 cursor-pointer p-1"
+                      className="text-xs text-stone-500 hover:text-forest-900 cursor-pointer p-1.5"
                       aria-label={`Copy ${phone}`}
                     >
                       {copiedValue === phone ? (
@@ -118,7 +135,7 @@ export const LeadershipPage: React.FC<LeadershipPageProps> = ({ onNavigate }) =>
                     <button
                       type="button"
                       onClick={() => handleCopy(email)}
-                      className="text-xs text-stone-500 hover:text-forest-900 cursor-pointer p-1 shrink-0"
+                      className="text-xs text-stone-500 hover:text-forest-900 cursor-pointer p-1.5 shrink-0"
                       aria-label={`Copy ${email}`}
                     >
                       {copiedValue === email ? (
@@ -157,12 +174,12 @@ export const LeadershipPage: React.FC<LeadershipPageProps> = ({ onNavigate }) =>
         </article>
 
         <aside className="lg:col-span-5 space-y-6">
-          <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
-            <div className="aspect-[4/3] bg-stone-200">
+          <div className="group bg-white border border-stone-200 rounded-xl overflow-hidden transition-shadow duration-200 hover:shadow-md">
+            <div className="aspect-[4/3] bg-stone-200 overflow-hidden">
               <SafeImage
                 src={FOUNDER_PROFILE.conferenceVisual}
                 alt="Les Porteurs de Gloire conference in Côte d'Ivoire featuring Evang. David Abrebor"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
               />
             </div>
             <div className="p-5 space-y-1.5">
@@ -216,7 +233,7 @@ export const LeadershipPage: React.FC<LeadershipPageProps> = ({ onNavigate }) =>
             onClick={() => onNavigate('mission')}
             className="text-sm font-semibold text-forest-900 hover:underline cursor-pointer"
           >
-            View Our 8 Ministry Tracks →
+            View Our Ministry Tracks →
           </button>
         </div>
 

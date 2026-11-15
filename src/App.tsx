@@ -16,52 +16,81 @@ import { PartnerPage } from './pages/PartnerPage';
 
 const VALID_PAGES: PageId[] = ['home', 'mission', 'leadership', 'gallery', 'journal', 'partner'];
 
-function getInitialPage(): PageId {
-  const hash = window.location.hash.replace('#', '').split('/')[0] as PageId;
-  return VALID_PAGES.includes(hash) ? hash : 'home';
+function parseHash(): { page: PageId; subId: string | null } {
+  const raw = window.location.hash.replace(/^#\/?/, '');
+  if (!raw) return { page: 'home', subId: null };
+  const [pagePart, ...rest] = raw.split('/');
+  const page = VALID_PAGES.includes(pagePart as PageId) ? (pagePart as PageId) : 'home';
+  const subId = rest.length > 0 && rest[0] ? rest.join('/') : null;
+  return { page, subId };
 }
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<PageId>(getInitialPage);
-  const [selectedArticleSlug, setSelectedArticleSlug] = useState<string | null>(null);
+  const initial = parseHash();
+  const [currentPage, setCurrentPage] = useState<PageId>(initial.page);
+  const [selectedArticleSlug, setSelectedArticleSlug] = useState<string | null>(
+    initial.page === 'journal' ? initial.subId : null
+  );
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(
+    initial.page === 'gallery' ? initial.subId : null
+  );
 
   useEffect(() => {
     const handleHashChange = () => {
-      const next = getInitialPage();
-      setCurrentPage(next);
+      const next = parseHash();
+      setCurrentPage(next.page);
+      setSelectedArticleSlug(next.page === 'journal' ? next.subId : null);
+      setSelectedPhotoId(next.page === 'gallery' ? next.subId : null);
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleNavigate = (page: PageId) => {
+  const handleNavigate = (page: PageId, subId: string | null = null) => {
     setCurrentPage(page);
-    if (page !== 'journal') {
-      setSelectedArticleSlug(null);
+    setSelectedArticleSlug(page === 'journal' ? subId : null);
+    setSelectedPhotoId(page === 'gallery' ? subId : null);
+
+    if (page === 'home') {
+      window.location.hash = '';
+    } else if (subId) {
+      window.location.hash = `${page}/${subId}`;
+    } else {
+      window.location.hash = page;
     }
-    window.location.hash = page === 'home' ? '' : page;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSelectArticle = (slug: string | null) => {
     setSelectedArticleSlug(slug);
+    window.location.hash = slug ? `journal/${slug}` : 'journal';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleOpenGalleryPhoto = (photoId: string) => {
+    handleNavigate('gallery', photoId);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f4] text-[#1c1917]">
-      <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
+    <div className="min-h-screen flex flex-col bg-[#faf8f4] text-[#1c1917] overflow-x-hidden">
+      <Navbar currentPage={currentPage} onNavigate={(page) => handleNavigate(page)} />
 
       <main className="flex-1">
         {currentPage === 'home' && (
           <HomePage
-            onNavigate={handleNavigate}
-            onSelectArticle={(slug) => setSelectedArticleSlug(slug)}
+            onNavigate={(page) => handleNavigate(page)}
+            onSelectArticle={(slug) => handleNavigate('journal', slug)}
+            onOpenPhoto={handleOpenGalleryPhoto}
           />
         )}
-        {currentPage === 'mission' && <MissionPage onNavigate={handleNavigate} />}
-        {currentPage === 'leadership' && <LeadershipPage onNavigate={handleNavigate} />}
-        {currentPage === 'gallery' && <GalleryPage />}
+        {currentPage === 'mission' && <MissionPage onNavigate={(page) => handleNavigate(page)} />}
+        {currentPage === 'leadership' && <LeadershipPage onNavigate={(page) => handleNavigate(page)} />}
+        {currentPage === 'gallery' && (
+          <GalleryPage
+            initialPhotoId={selectedPhotoId}
+            onClearInitialPhoto={() => setSelectedPhotoId(null)}
+          />
+        )}
         {currentPage === 'journal' && (
           <JournalPage
             selectedSlug={selectedArticleSlug}
@@ -71,7 +100,7 @@ export default function App() {
         {currentPage === 'partner' && <PartnerPage />}
       </main>
 
-      <Footer onNavigate={handleNavigate} />
+      <Footer onNavigate={(page) => handleNavigate(page)} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowRight, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, Expand, X } from 'lucide-react';
 import { MANDATES, MISSION_INFO, PageId } from '../data/missionData';
 import { SafeImage } from '../components/SafeImage';
 
@@ -69,7 +69,16 @@ const OFFICIAL_FLYERS = [
 
 export const MissionPage: React.FC<MissionPageProps> = ({ onNavigate }) => {
   const [activeTrack, setActiveTrack] = useState(PARTICIPATION_TRACKS[0].id);
-  const [selectedFlyer, setSelectedFlyer] = useState<typeof OFFICIAL_FLYERS[0] | null>(null);
+  const [selectedFlyer, setSelectedFlyer] = useState<(typeof OFFICIAL_FLYERS)[0] | null>(null);
+
+  useEffect(() => {
+    if (!selectedFlyer) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedFlyer(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [selectedFlyer]);
 
   const track = PARTICIPATION_TRACKS.find((t) => t.id === activeTrack) || PARTICIPATION_TRACKS[0];
 
@@ -97,7 +106,7 @@ export const MissionPage: React.FC<MissionPageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('partner')}
               className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-forest-900 hover:bg-forest-800 rounded-lg transition-colors cursor-pointer"
             >
-              <span>Partner With Us</span>
+              <span>Donate &amp; Partner With Us</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -181,9 +190,17 @@ export const MissionPage: React.FC<MissionPageProps> = ({ onNavigate }) => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-4 border-t border-stone-300/60 items-start">
-          <div className="lg:col-span-6 space-y-3">
+          <div className="lg:col-span-6 space-y-4">
             <h3 className="font-serif text-2xl font-semibold text-forest-950">{track.title}</h3>
             <p className="text-sm sm:text-base text-stone-700 leading-relaxed">{track.description}</p>
+            <button
+              type="button"
+              onClick={() => onNavigate('partner')}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-forest-900 hover:text-harvest-600 transition-colors cursor-pointer"
+            >
+              <span>Connect With Our Team</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
           <ul className="lg:col-span-6 space-y-3 bg-white border border-stone-200 rounded-xl p-6">
             {track.points.map((pt, i) => (
@@ -198,7 +215,7 @@ export const MissionPage: React.FC<MissionPageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* Complete 8-Avenue Curriculum & Harvest Field Academy */}
+      {/* Complete Ministry Tracks & Harvest Field Academy */}
       <section className="space-y-8">
         <div className="max-w-2xl space-y-2">
           <p className="text-xs font-semibold uppercase tracking-widest text-harvest-600">
@@ -213,13 +230,34 @@ export const MissionPage: React.FC<MissionPageProps> = ({ onNavigate }) => {
           {MANDATES.map((item) => (
             <div
               key={item.id}
-              className="bg-white border border-stone-200 rounded-xl p-6 space-y-3"
+              className="group bg-white border border-stone-200 rounded-xl overflow-hidden flex flex-col justify-between transition-shadow duration-200 hover:shadow-md"
             >
-              <span className="font-mono text-xs font-semibold text-harvest-600 tabular-nums">
-                {item.index} / {item.category}
-              </span>
-              <h3 className="font-serif text-xl font-semibold text-forest-950">{item.title}</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">{item.description}</p>
+              <div>
+                <div className="aspect-[16/10] bg-stone-200 overflow-hidden">
+                  <SafeImage
+                    src={item.image}
+                    alt={item.imageAlt}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  />
+                </div>
+                <div className="p-6 space-y-3">
+                  <span className="font-mono text-xs font-semibold text-harvest-600 tabular-nums">
+                    {item.index} / {item.category}
+                  </span>
+                  <h3 className="font-serif text-xl font-semibold text-forest-950">{item.title}</h3>
+                  <p className="text-sm text-stone-600 leading-relaxed">{item.description}</p>
+                </div>
+              </div>
+              <div className="px-6 pb-5">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('partner')}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-forest-900 hover:text-harvest-600 transition-colors cursor-pointer"
+                >
+                  <span>Sponsor This Track</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -246,14 +284,20 @@ export const MissionPage: React.FC<MissionPageProps> = ({ onNavigate }) => {
               key={flyer.id}
               type="button"
               onClick={() => setSelectedFlyer(flyer)}
-              className="text-left bg-white border border-stone-200 rounded-xl overflow-hidden group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800"
+              className="text-left bg-white border border-stone-200 rounded-xl overflow-hidden group transition-shadow duration-200 hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800"
             >
-              <div className="aspect-[3/4] bg-stone-100 overflow-hidden">
+              <div className="relative aspect-[3/4] bg-stone-100 overflow-hidden">
                 <SafeImage
                   src={flyer.src}
                   alt={flyer.title}
-                  className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-200"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-4">
+                  <span className="text-xs font-medium text-white">Inspect Full Flyer</span>
+                  <span className="w-8 h-8 rounded-lg bg-black/60 text-white inline-flex items-center justify-center">
+                    <Expand className="w-4 h-4" />
+                  </span>
+                </div>
               </div>
               <div className="p-5 space-y-1.5">
                 <h3 className="font-serif text-lg font-semibold text-forest-950">{flyer.title}</h3>
